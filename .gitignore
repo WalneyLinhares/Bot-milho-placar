@@ -1,0 +1,4 @@
+.env
+test.http
+db.json
+node_modules/
