@@ -1,7 +1,7 @@
-import { loadEnvFile } from 'node:process';
+import dotenv from 'dotenv';
 import { client } from './client.js';
 
-loadEnvFile();
+dotenv.config();
 
 export async function sendEmbeds(embeds) {
     const channel = await client.channels.fetch(process.env.CHANNEL_ID);

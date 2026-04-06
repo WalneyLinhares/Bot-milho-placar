@@ -3,15 +3,16 @@ import { loadDB, saveDB } from './core/database.js';
 import { compareRanking, buildEmbed } from './core/ranking.js';
 import { sendEmbeds } from './bot/sender.js';
 import { startBot } from './bot/client.js';
-import { loadEnvFile } from 'process';
 import { canRun } from './core/scheduler.js';
 import rateLimit from "express-rate-limit";
+import dotenv from 'dotenv';
+
 
 const app = express();
 app.use(express.json({ limit: "300kb" }));
 
 await startBot();
-loadEnvFile();
+dotenv.config();
 
 function authMiddleware(req, res, next) {
     const apiKey = req.headers["x-api-key"];
