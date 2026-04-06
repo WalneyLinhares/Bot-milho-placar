@@ -7,12 +7,11 @@ import { canRun } from './core/scheduler.js';
 import rateLimit from "express-rate-limit";
 import dotenv from 'dotenv';
 
+dotenv.config();
 
 const app = express();
 app.use(express.json({ limit: "300kb" }));
 
-await startBot();
-dotenv.config();
 
 function authMiddleware(req, res, next) {
     const apiKey = req.headers["x-api-key"];
@@ -28,6 +27,7 @@ const limiter = rateLimit({ windowMs: 60000, max: 5 });
 
 app.post("/dados", authMiddleware, limiter, async (req, res) => {
 
+    await startBot();
     console.log(`[${new Date().toISOString()}] Request de ${req.ip}`);
 
     try {
