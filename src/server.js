@@ -4,7 +4,9 @@ import { compareRanking, buildEmbed } from './core/ranking.js';
 import { sendEmbeds } from './bot/sender.js';
 import { startBot } from './bot/client.js';
 import { canRun } from './core/scheduler.js';
-import rateLimit from "express-rate-limit";
+import { authMiddleware } from './middlewares/auth.js'
+import { validateBody } from './middlewares/validateBody.js'
+import { limiter } from './middlewares/limiter.js'
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,29 +16,15 @@ app.set('trust proxy', 1);
 app.use(express.json({ limit: "300kb" }));
 
 
-function authMiddleware(req, res, next) {
-    const apiKey = req.headers["x-api-key"];
+app.post("/dados", authMiddleware, validateBody, limiter, async (req, res) => {
 
-    if (!apiKey || apiKey !== process.env.API_KEY) {
-        return res.status(403).send("Access denied");
-    }
-
-    next();
-}
-
-const limiter = rateLimit({ windowMs: 60000, max: 5 });
-
-app.post("/dados", authMiddleware, limiter, async (req, res) => {
-
-    await startBot();
     console.log(`[${new Date().toISOString()}] Request de ${req.ip}`);
 
-    try {
-        const { placares } = req.body;
+    await startBot();
 
-        if (!Array.isArray(placares)) {
-            return res.status(400).send("Format invalid");
-        }
+    try {
+
+        const { placares } = req.body;
 
         const db = loadDB();
 
@@ -59,7 +47,7 @@ app.post("/dados", authMiddleware, limiter, async (req, res) => {
             return res.send("Primeiro snapshot enviado!");
         }
 
-        if (!canRun(db.lastUpdate, 4, true)) {
+        if (!canRun(db.lastUpdate, 3, true)) {
             return res.send("The deadline for execution has not yet been reached.");
         }
 
