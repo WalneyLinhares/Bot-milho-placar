@@ -12,6 +12,18 @@ function validateBody(req, res, next) {
         return res.status(400).send("placares deve ser um array");
     }
 
+    if (placares.length !== PLACARES_PERMITIDOS.length) {
+        return res.status(400).send("Quantidade de placares inválida");
+    }
+
+    const nomesRecebidos = placares.map(p => p.nome);
+
+    for (const nome of PLACARES_PERMITIDOS) {
+        if (!nomesRecebidos.includes(nome)) {
+            return res.status(400).send(`Faltando placar válido`);
+        }
+    }
+
     for (const placar of placares) {
         // 2. nome válido
         if (typeof placar.nome !== "string") {
@@ -19,7 +31,7 @@ function validateBody(req, res, next) {
         }
 
         if (!PLACARES_PERMITIDOS.includes(placar.nome)) {
-            return res.status(400).send(`placar não permitido: ${placar.nome}`);
+            return res.status(400).send(`placar não permitido`);
         }
 
         // 3. dados
