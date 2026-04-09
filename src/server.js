@@ -44,7 +44,7 @@ app.post("/dados", authMiddleware, validateBody, limiter, async (req, res) => {
             return res.send("Primeiro snapshot enviado!");
         }
 
-        if (!canRun(db.lastUpdate, 3, true)) {
+        if (!canRun(db.lastUpdate, 3)) {
             return res.send("The deadline for execution has not yet been reached.");
         }
 
