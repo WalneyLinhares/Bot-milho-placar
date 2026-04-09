@@ -1,5 +1,6 @@
 import express from 'express';
-import { loadDB, saveDB } from './core/database.js';
+import { getData, saveData } from './core/repository.js';
+import { connectDB } from './core/mongo.js';
 import { compareRanking, buildEmbed } from './core/ranking.js';
 import { sendEmbeds } from './bot/sender.js';
 import { startBot } from './bot/client.js';
@@ -15,18 +16,15 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(express.json({ limit: "300kb" }));
 
-
 app.post("/dados", authMiddleware, validateBody, limiter, async (req, res) => {
 
     console.log(`[${new Date().toISOString()}] Request de ${req.ip}`);
-
-    await startBot();
 
     try {
 
         const { placares } = req.body;
 
-        const db = loadDB();
+        const db = await getData();
 
         const embeds = [];
 
@@ -41,7 +39,7 @@ app.post("/dados", authMiddleware, validateBody, limiter, async (req, res) => {
             }
 
             db.lastUpdate = Date.now();
-            saveDB(db);
+            await saveData(db);
 
             await sendEmbeds(embeds);
             return res.send("Primeiro snapshot enviado!");
@@ -62,7 +60,7 @@ app.post("/dados", authMiddleware, validateBody, limiter, async (req, res) => {
         }
 
         db.lastUpdate = Date.now();
-        saveDB(db);
+        await saveData(db);
 
         await sendEmbeds(embeds);
 
@@ -78,3 +76,6 @@ const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+await connectDB();
+await startBot();
