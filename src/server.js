@@ -1,6 +1,5 @@
 import express from 'express';
 import { getData, saveData } from './core/repository.js';
-import { connectDB } from './core/mongo.js';
 import { compareRanking, buildEmbed } from './core/ranking.js';
 import { sendEmbeds } from './bot/sender.js';
 import { startBot } from './bot/client.js';
@@ -77,5 +76,5 @@ app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-await connectDB();
+
 await startBot();
